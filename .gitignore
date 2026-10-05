@@ -1,0 +1,32 @@
+# Quarto
+/.quarto/
+/_site/
+/_book/
+*_files/
+*.quarto_ipynb
+.jupyter_cache/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# Editors and IDEs
+.vscode/
+.idea/
+.windsurf/
+
+# Environment and secrets
+.env
+.env.*
+
+# Logs
+*.log
