@@ -90,9 +90,47 @@ for i, m in enumerate(medians):
             bbox=dict(boxstyle='round', fc='white', ec='none', alpha=0.8))
 
 # Set the title and axis labels
-ax.set_title('Gentoo Penguins Are Heavier Than Others')
+ax.set_title('Gentoo Are Heavier Than Others')
 ax.set_xlabel('Penguin Species')
 ax.set_ylabel('Body Mass (grams)')
+
+plt.show()
+```
+
+Or go horizontal...
+
+```{python}
+#| label: fig-cmp-box-hor
+#| fig-cap: "Side-by-side box plots compare penguin body mass across three species. The label on each box is the species median."
+
+# Compute the median body mass of each species
+medians = penguins.groupby('species')['body_mass_g'].median()
+
+# Create a figure and axis object
+fig, ax = plt.subplots(figsize=(6, 3))
+
+# Box plot of body mass by species
+sns.boxplot(data=penguins, y='species', x='body_mass_g', width=0.5,
+            order=medians.index, hue='species',
+            palette='pastel', legend=False, ax=ax, orient='h')
+
+# Label the median of each box
+for i, m in enumerate(medians):
+    ax.text(m, i, '{:,.0f} g'.format(m),
+            ha='center', va='center', size='xx-small',
+            bbox=dict(boxstyle='round', fc='white', ec='none', alpha=0.8))
+
+# Replace the y-axis labels with species names above each box,
+# left aligned at hard-coded (x, y) data coordinates
+ax.text(2700, -0.25, 'Adelie', ha='left', va='center', size='xx-small')
+ax.text(2700, 0.7, 'Chinstrap', ha='left', va='center', size='xx-small')
+ax.text(3900, 1.7, 'Gentoo', ha='left', va='center', size='xx-small')
+
+# Set the title and axis labels, and remove the y-axis labels
+ax.set_title('Gentoo Are Heavier Than Others')
+ax.set_xlabel('Body Mass (grams)')
+ax.set_ylabel('')
+ax.set_yticks([])
 
 plt.show()
 ```
