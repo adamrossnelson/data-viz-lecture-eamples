@@ -859,9 +859,11 @@ ax.set_ylabel('Number of Diamonds')
 plt.show()
 ```
 
+Notice how the mean `{python} f"{diamonds['price'].mean():.2f}"` and median `{python} f"{diamonds['price'].median():.2f}"` are dissimilar for these data and how a histogram illustrates why.
+
 ## Candidate 2: Same Data, Different Bin Counts
 
-The number of bins is a choice, and the choice changes the story. This is a good figure for teaching that point.
+The number of bins is a choice, and the choice changes the story. This is a good figure for teaching that point. Because there are many outliers in prices above 5,000, 10,000 (and higher) the mean skews or distorts how well the mean represents the true central tendencies of these data.
 
 ```{python}
 #| label: fig-dist-bins
@@ -1024,7 +1026,7 @@ plt.show()
 
 A composition story answers *what are the parts of the whole?* Pie and donut charts work when there are only a few parts and the audience needs a rough share. Stacked bars show composition across several groups, and proportional (100%) stacked bars make the shares comparable even when the group sizes differ.
 
-Candidates: @fig-comp-pie, @fig-comp-donut, @fig-comp-stacked, @fig-comp-prop, @fig-comp-prop-h, @fig-comp-waffle.
+Candidates: @fig-comp-pie, @fig-comp-donut, @fig-comp-stacked, @fig-comp-prop, @fig-comp-prop-h-a, @fig-comp-prop-h-b, @fig-comp-waffle.
 
 ```{python}
 #| label: comp-data
@@ -1167,12 +1169,12 @@ ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.25),
 plt.show()
 ```
 
-## Candidate 5: Horizontal Proportional Stacked Bar Chart
+## Candidate 5a: Horizontal Proportional Stacked Bar Chart
 
 Horizontal bars leave room for long group names and many segments. Hiding the labels on the tiniest segments keeps the chart readable.
 
 ```{python}
-#| label: fig-comp-prop-h
+#| label: fig-comp-prop-h-a
 #| fig-cap: "A horizontal proportional stacked bar chart shows the percent of cars from each region of origin by number of engine cylinders. Segments under 6% are not labeled."
 
 # Cross-tabulate origin by cylinders, as a percent of each origin
@@ -1199,6 +1201,56 @@ ax.set_xlabel('Share of Cars (%)')
 ax.set_ylabel('')
 ax.legend(title='Cylinders', loc='upper center', bbox_to_anchor=(0.5, -0.25),
           ncol=5, fontsize='x-small', title_fontsize='x-small')
+
+plt.show()
+```
+
+## Candidate 5b: Horizontal Proportional Stacked Bar Chart With Texture
+
+This version uses black-and-white hatch patterns to distinguish cylinder counts without relying on color. Compare it with @fig-comp-prop-h-a: the data and percentages are the same, but the textures also work in black-and-white publications. White backgrounds behind the percentage labels keep them readable over the patterns.
+
+```{python}
+#| label: fig-comp-prop-h-b
+#| fig-cap: "A horizontal proportional stacked bar chart uses hatch patterns to show the percent of cars from each region of origin by number of engine cylinders. Segments under 6% are not labeled."
+
+# Cross-tabulate origin by cylinders, as a percent of each origin
+ct = pd.crosstab(mpg['origin'], mpg['cylinders'], normalize='index').mul(100)
+ct.index = ct.index.str.title()
+
+# One texture for each cylinder count
+patterns = ['///', 'xxx', '...', '---', '+++']
+
+# Create a figure and axis object
+fig, ax = plt.subplots(figsize=(6, 3))
+
+# Horizontal proportional stacked bar chart
+ct.plot(kind='barh', stacked=True, color='white', edgecolor='black',
+        legend=False, ax=ax)
+
+# Apply textures and label each large segment with its percent
+for container, pattern in zip(ax.containers, patterns):
+    for bar in container:
+        bar.set_hatch(pattern)
+    labels = ['{:.0f}%'.format(v) if v >= 6 else '' for v in container.datavalues]
+    ax.bar_label(container, labels=labels, label_type='center', size='x-small',
+                 bbox=dict(facecolor='white', edgecolor='none', pad=1))
+
+# Create legend entries that match each cylinder count's texture
+handles = [
+    Patch(facecolor='white', edgecolor='black', hatch=pattern, label=str(cylinders))
+    for cylinders, pattern in zip(ct.columns, patterns)
+]
+
+# Put the first group at the top
+ax.invert_yaxis()
+
+# Set the title and axis labels
+ax.set_title('US Cars Use Bigger Engines')
+ax.set_xlabel('Share of Cars (%)')
+ax.set_ylabel('')
+ax.legend(handles=handles, title='Cylinders', loc='upper center',
+          bbox_to_anchor=(0.5, -0.25), ncol=5,
+          fontsize='x-small', title_fontsize='x-small')
 
 plt.show()
 ```
@@ -1518,7 +1570,6 @@ ax.invert_yaxis()
 
 # Set the title and axis labels
 ax.set_title('Japan Rose To #1 While The USA Fell To Last')
-ax.set_xlabel('Year')
 ax.set_ylabel('Rank (1 = Highest)')
 ax.set_xticks(years)
 ax.set_yticks(range(1, 7))
