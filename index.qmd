@@ -273,7 +273,7 @@ To move the label (either up or down on the chart) use the `padding=` option. A 
 
 ## Candidate 4-alt: Grouped Bar Chart
 
-A grouped bar chart compares groups across a second categorical variable. Keep the number of bars manageable so each height label stays readable.
+This example in black and white further enhances accessibility. For folks who perceive color differently (or who do not perceive color) this chart is more accessible. This charting approach will also work well when you know your destination publication medium will be black and white.
 
 ```{python}
 #| label: fig-cmp-grouped-bar-alt
@@ -371,13 +371,22 @@ for _, row in list(annual.iterrows())[1::3]:
 # Set the title and axis labels
 ax.set_title('Air Travel Grew Rapidly From 1949 To 1960')
 ax.set_xlabel('Year')
-ax.set_ylabel('Total Passengers (thousands)')
+ax.set_ylabel('Total Passengers')
 ax.set_xticks(annual['year'])
 ax.set_xticklabels(annual['year'], rotation=45)
 ax.set_ylim(0, 6600)
 
 plt.show()
 ```
+
+::: {.callout-tip}
+# Adding Annotations Intermittently
+
+The for loop (`for _, row in list(annual.iterrows())[1::3]:
+`) adds the data labels intermittently. Data labels reduce cognitive load. However a label on every data point would clutter the visualization.
+
+By adding the data labels over very third point (starting with the first) using the `[1::3]` indexing strategy we add just enough data labels to reduce the reader's cognitive load without crowding the chart area.
+:::
 
 ## Candidate 2: Multiple Lines With Direct Labels
 
@@ -404,15 +413,14 @@ sns.lineplot(data=health, x='Year', y='Life_Expectancy',
 for country, group in health.groupby('Country'):
     last = group.loc[group['Year'].idxmax()]
     ax.text(last['Year'] + 0.7, last['Life_Expectancy'], country,
-            color=palette[country], va='center', size='small')
+            color=palette[country], va='center', size='x-small')
 
 # Make room for the labels
 ax.set_xlim(1970, 2032)
 
 # Set the title and axis labels
 ax.set_title('Japan Pulled Ahead on Life Expectancy')
-ax.set_xlabel('Year')
-ax.set_ylabel('Life Expectancy (years)')
+ax.set_ylabel('Life Expectancy (yrs)')
 
 plt.show()
 ```
@@ -456,8 +464,7 @@ ax.annotate('Recovered in {}'.format(recovery['Date'].year),
             arrowprops={'arrowstyle': '->'}, size='xx-small')
 
 # Set the title and axis labels
-ax.set_title('Dow Took 25 Yrs to Recover From 1929 Crash')
-ax.set_xlabel('Year')
+ax.set_title('Dow Took 25 Yrs to \n Recover From 1929 Crash')
 ax.set_ylabel('Dow Jones Average')
 
 plt.show()
@@ -488,6 +495,12 @@ ax.legend(title='Event')
 plt.show()
 ```
 
+::: {.callout-warning title="Important"}
+# Using Symbols For Accessibility
+
+Instead of dots on both lines, this chart uses dots on one line, and x's on the other line to support accesibility. This approach is more accessible because it provides better contrast and is easier to distinguish for readers with visual impairments.
+:::
+
 ## Candidate 5: One Violin Per Year
 
 When a line of averages would hide how the whole distribution moved, draw one violin per period. The line over the violins carries the median.
@@ -507,7 +520,6 @@ sns.violinplot(data=mpg, x='model_year', y='mpg', ax=ax)
 
 # Set the title and axis labels
 ax.set_title('Fuel Efficiency Jumped After 1979')
-ax.set_xlabel('Model Year')
 ax.set_ylabel('Fuel Efficiency (MPG)')
 ax.set_xticks(range(len(yearly_median)))
 ax.set_xticklabels(['19{}'.format(y) for y in yearly_median.index], rotation=45)
@@ -536,7 +548,6 @@ ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.,
 
 # Set the title and axis labels
 ax.set_title('Yearly Patterns Repeat')
-ax.set_xlabel('Month')
 ax.set_ylabel('Passengers')
 
 # Shrink the x-axis labels so the month names fit
@@ -549,7 +560,7 @@ plt.show()
 
 A correlation story answers *do these two things move together?* Scatter plots show the raw relationship between two numeric variables. When there are too many points, hexbin plots show density instead. When both variables are categorical, cross-tabulate them and show the table as a heat map.
 
-Candidates: @fig-corr-reg, @fig-corr-simpson, @fig-corr-hexbin, @fig-corr-heat, @fig-corr-crosstab, @fig-corr-bubble.
+Candidates: @fig-corr-reg, @fig-corr-simpson, @fig-corr-hexbin, @fig-corr-hexbin-b, @fig-corr-heat, @fig-corr-crosstab, @fig-corr-bubble.
 
 ```{python}
 #| label: corr-data
@@ -588,7 +599,7 @@ ax.text(0.95, 0.95, 'r = {:.2f}'.format(r),
 # Set the title and axis labels
 ax.set_title('Heavier Cars Are Less Efficient')
 ax.set_xlabel('Vehicle Weight (lbs)')
-ax.set_ylabel('Fuel Efficiency (MPG)')
+ax.set_ylabel('Efficiency (MPG)')
 
 plt.show()
 ```
@@ -624,7 +635,7 @@ ax.set_ylabel('Bill Depth (mm)')
 plt.show()
 ```
 
-## Candidate 3: Hexbin Plot For Crowded Scatter Plots
+## Candidate 3a: Hexbin Plot For Crowded Scatter Plots
 
 With tens of thousands of points a scatter plot becomes a solid blob. A hexbin plot counts the points in each hexagon so the density shows through.
 
@@ -653,6 +664,57 @@ axes[0].set_ylabel('Price (US dollars)', fontsize='x-small')
 
 plt.show()
 ```
+
+## Candidate 3b: Hexbin Plot of Vehicle Weight and Fuel Efficiency
+
+This smaller automobile dataset lets us compare individual observations with counts in hexagonal bins. Both views show that heavier vehicles tend to have lower fuel efficiency. Darker hexagons indicate more vehicles with similar weights and MPG values.
+
+```{python}
+#| label: fig-corr-hexbin-b
+#| fig-cap: "Vehicle weight and fuel efficiency shown as a scatter plot (top) and a hexbin plot (bottom). Darker hexagons contain more vehicles. Both views show that heavier vehicles tend to have lower MPG."
+
+# Create vertically stacked axes with matching scales
+fig, axes = plt.subplots(nrows=2, figsize=(6, 6), sharex=True, sharey=True,
+                         constrained_layout=True)
+fig.suptitle('Heavier Vehicles Tend to Have Lower MPG', fontsize='small')
+
+# Top: plain scatter plot
+sns.scatterplot(data=mpg, x='weight', y='mpg',
+                s=5, ax=axes[0])
+axes[0].set_title('Scatter: Individual Vehicles', fontsize='x-small')
+
+# Bottom: hexbin plot with a color bar showing vehicle counts
+hb = axes[1].hexbin(mpg['weight'], mpg['mpg'],
+                    gridsize=20, cmap='Blues', mincnt=1)
+# Reserve color bar space beside both panels to keep their widths aligned
+cbar = fig.colorbar(hb, ax=axes)
+cbar.set_label('Vehicles per Hexagon', fontsize='x-small')
+cbar.ax.tick_params(labelsize='x-small')
+axes[1].set_title('Hexbin: Vehicle Counts', fontsize='x-small')
+
+# Set the axis labels
+axes[0].set_xlabel('')
+axes[1].set_xlabel('Vehicle Weight (lbs)', fontsize='x-small')
+for ax in axes:
+    ax.set_ylabel('Fuel Efficiency (MPG)', fontsize='x-small')
+    ax.tick_params(labelsize='x-small')
+
+plt.show()
+```
+
+::: {.callout-note}
+# A Deeper Think About Hexbin
+
+Hexbin plots are especially useful for exploratory data analysis and for sharing results with close collaborators. They can also work for broader audiences, but readers may need an explanation of what the hexagons and colors represent.
+
+If you need additional help interpreting a hexbin plot consider the following on how they are plotted and how they work. Start with a scatter plot. Each vehicle has two coordinates (its weight on the horizontal axis and its fuel efficiency on the vertical axis). Of course, nearby points represent vehicles with similar weights and MPG values. The problem is that sometimes those points overlap each other (vehicles with identical efficiency and weight values).
+
+Then, divide the plotting area into a grid of hexagons. Each hexagon covers a small neighborhood of weight and MPG values. After that, count the points in each hexagon. Each vehicle contributes to one bin. A hexagon containing five vehicles gets a count of five, even if some of those vehicles would overlap in a scatter plot.
+
+Finally, turn those counts into colors. In this example, darker blue means more vehicles. Use the color bar labeled "Vehicles per Hexagon" to interpret the shading. 
+
+The `gridsize` setting controls how finely the data are grouped. Here, `gridsize=20` specifies 20 hexagons across the horizontal direction.
+:::
 
 ## Candidate 4: Correlation Matrix Heat Map
 
