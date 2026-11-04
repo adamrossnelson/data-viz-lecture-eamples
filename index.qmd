@@ -17,18 +17,18 @@ format:
 
 ## How To Use This Page
 
-This page is designed to stand in for slides. Every data story type below has several **candidate visuals**. Each candidate is numbered, captioned, and shows the code that produced it, so you can pick the ones that best fit your lecture and your audience.
+This page is designed to stand in for slides. Every data story type below has several candidate visuals. Each candidate is numbered, captioned, and shows the code that produced it, so you can pick the ones that best fit your lecture and your audience.
 
 Every example uses Seaborn and Matplotlib. Wherever possible the data come from Seaborn's built-in example datasets. Where no built-in dataset makes the point (review summaries, dials, a battery gauge), the data are fictional and are generated in plain sight in the code.
 
 | Story type | The question it answers | Typical visuals |
 |:---|:---|:---|
-| Comparison | How do groups differ? | Side-by-side box or violin plots, bar charts |
-| Change over time | What happened, and when? | Line charts, one violin per year |
-| Correlation | Do two things move together? | Scatter, hexbin, heat map |
-| Distribution | What does one variable look like? | Histogram, solo box, solo violin |
-| Composition | What are the parts of the whole? | Pie, stacked bar, 100% stacked bar |
-| Ranking | Who or what is best, and who is worst? | Leader boards, review summaries |
+| Comparison | How do groups differ? | Side-by-side box or violin plots, bar charts, ridgeline plots, simple tables |
+| Change over time | What happened, and when? | Line charts, one violin per year, sequential stacked bar charts |
+| Correlation | Do two things move together? | Scatter, bubble charts, hexbin heat map|
+| Distribution | What does one variable look like? | Histogram, solo box plot, solo violin plot |
+| Composition | What are the parts of the whole? | Pie, stacked bar, proportional stacked bar |
+| Ranking | Who or what is best, and who is worst? | Leader boards, star review summaries (averages of star ratings) |
 | Process or status | Where are we right now? | Dials, meters, Sankey, battery |
 
 ### Setup
@@ -48,11 +48,19 @@ import matplotlib.pyplot as plt
 sns.set_context('talk')
 ```
 
+::: {.callout-note}
+# Seaborn Context Settings
+
+The `sns.set_context('talk')` code call sets font sizes, line widths, and spacing appropriate for presentation slides. Often the larger fone and bolder lines characteristic of this `talk` context are appropriate and useful in any context. You can adjust these settings or use other contexts like `'paper'` or `'notebook'` depending on your audience and medium.
+:::
+
 # The Comparison Stories
 
-A comparison story answers the question *how do these groups differ?* The reader should be able to see, in a glance, which group is higher, lower, or more spread out. Side-by-side box plots and violin plots show the whole distribution for each group. Bar charts reduce each group to a single number, which is simpler but hides spread.
+A comparison story answers the question *how do these groups differ?* The reader should be able to see, in a glance, which group is higher, lower, or more spread out. Side-by-side box plots and violin plots show the whole distribution for each group. Bar charts reduce each group to a single number (average or median). Bar charts, and the single number, is simpler but hides spread. *Suggestion: If you're doing a siple bar chart that distils the data to a single statistic per group consider a simple table instead of a bar chart.*
 
 Candidates: @fig-cmp-box, @fig-cmp-violin, @fig-cmp-bar, @fig-cmp-grouped-bar.
+
+All figures use one or more of these specific data files.
 
 ```{python}
 #| label: cmp-data
@@ -76,7 +84,7 @@ A box plot reduces each group to five numbers (minimum, quartiles, median, maxim
 medians = penguins.groupby('species')['body_mass_g'].median()
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 3))
+fig, ax = plt.subplots(figsize=(5, 2.5))
 
 # Box plot of body mass by species
 sns.boxplot(data=penguins, x='species', y='body_mass_g',
@@ -107,7 +115,7 @@ Or go horizontal...
 medians = penguins.groupby('species')['body_mass_g'].median()
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 3))
+fig, ax = plt.subplots(figsize=(5, 2.5))
 
 # Box plot of body mass by species
 sns.boxplot(data=penguins, y='species', x='body_mass_g', width=0.5,
@@ -116,7 +124,7 @@ sns.boxplot(data=penguins, y='species', x='body_mass_g', width=0.5,
 
 # Label the median of each box
 for i, m in enumerate(medians):
-    ax.text(m, i, '{:,.0f} g'.format(m),
+    ax.text(m, i, '{:,.0f}'.format(m),
             ha='center', va='center', size='xx-small',
             bbox=dict(boxstyle='round', fc='white', ec='none', alpha=0.8))
 
@@ -147,7 +155,7 @@ A violin plot adds the *shape* of each distribution. The inner box keeps the fam
 mean_bill = tips.groupby('day', observed=True)['total_bill'].mean()
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 3))
+fig, ax = plt.subplots(figsize=(5, 3))
 
 # Violin plot of total bill by day
 sns.violinplot(data=tips, x='day', y='total_bill',
@@ -157,7 +165,7 @@ sns.violinplot(data=tips, x='day', y='total_bill',
 # Label the mean of each violin along the top
 for i, m in enumerate(mean_bill):
     ax.text(i, 58, 'Mean\n${:.2f}'.format(m),
-            ha='center', va='center', size='small')
+            ha='center', va='center', size='x-small')
 
 # Make room for the labels
 ax.set_ylim(0, 65)
@@ -169,6 +177,13 @@ ax.set_ylabel('Total (Dollars)')
 
 plt.show()
 ```
+
+::: {.callout-tip}
+# Adjusting Annotation Font Size
+The for loop (`for i, m in enumerate(mean_bill):`) iterates over the mean bill values and their indices. The `ax.text()` function adds text annotations to the plot that we would call height labels. 
+
+The `size` parameter controls the font size of the text. The options for this size paramater are either a float value that will scale the font size or one of the following `'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'`.
+:::
 
 ## Candidate 3: Bar Chart of Group Averages
 
@@ -191,7 +206,7 @@ sns.barplot(x=avg_mpg.index.str.title(), y=avg_mpg.values,
 
 # Add height labels above the bars
 for i, v in enumerate(avg_mpg):
-    ax.text(i, v + 0.5, '{:.1f}'.format(v),
+    ax.text(i, v-6 + 0.5, '{:.1f}'.format(v),
             ha='center', size='x-large')
 
 # Set the title and axis labels
@@ -202,6 +217,12 @@ ax.set_ylim(0, 36)
 
 plt.show()
 ```
+
+::: {.callout-warning title="Important"}
+# Height Labels For Accessibility
+
+Adding height labels to bar charts improves accessibility for users who rely on screen readers or have visual impairments. The text annotations provide the exact values that would otherwise be conveyed visually through the bar lengths.
+:::
 
 ## Candidate 4: Grouped Bar Chart
 
@@ -224,7 +245,7 @@ sns.barplot(data=survival, x='pclass', y='survived',
 
 # Add height labels above each bar
 for container in ax.containers:
-    ax.bar_label(container, fmt='%.0f%%', padding=3, size='medium')
+    ax.bar_label(container, fmt='%.0f%%', padding=-19, size='small')
 
 # Set the title and axis labels
 ax.set_title('Women Survived at Higher Rates Than Men')
@@ -232,6 +253,76 @@ ax.set_xlabel('Passenger Class')
 ax.set_ylabel('Survival Rate (%)')
 ax.set_ylim(0, 110)
 ax.legend(loc='upper right')
+
+plt.show()
+```
+
+::: {.callout-tip}
+# Alternate Method For Adding or Adjusting Height Labels
+
+The for loop (`for container in ax.containers:`) iterates over the containers of bars in the plot. This approach is different from the approach used in @fig-cmp-violin.
+
+These containers are provided by matplotlib and contain the individual bar objects. Matplotlib quietly instantiates these contaniners when you call `sns.barplot()`.
+
+Each container contains the individual bar objects. The `ax.bar_label()` function adds text annotations to the plot that we would (again) merely just call height labels. 
+
+The `size` parameter controls the font size of the text. The options for this size paramater are either a float value that will scale the font size or one of the following `'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'`.
+
+To move the label (either up or down on the chart) use the `padding=` option. A negative value moves the label downward so it will appear on op of the bar itself (instead of above the bar).
+:::
+
+## Candidate 4-alt: Grouped Bar Chart
+
+A grouped bar chart compares groups across a second categorical variable. Keep the number of bars manageable so each height label stays readable.
+
+```{python}
+#| label: fig-cmp-grouped-bar-alt
+#| fig-cap: "A grouped bar chart compares the Titanic survival rate of women and men within each passenger class."
+
+# Additional import to support accessibilty
+from matplotlib.patches import Patch
+
+# Setup for adding texture to the chart
+groups = ['female', 'male']
+patterns = ['///', 'xxx']
+
+# Compute the survival rate (as a percent) by class and sex
+survival = (titanic.groupby(['pclass', 'sex'])['survived']
+            .mean().mul(100).reset_index())
+
+# Create a figure and axis object
+fig, ax = plt.subplots(figsize=(6, 4))
+
+# Grouped bar chart of survival rate
+sns.barplot(
+    data=survival, x='pclass', y='survived',
+    hue='sex', hue_order=groups,
+    palette={'female': 'white', 'male': 'white'},
+    edgecolor='black', legend=False, ax=ax)
+
+# Apply one texture per group and add percentage labels
+for container, pattern in zip(ax.containers, patterns):
+    for bar in container:
+        bar.set_hatch(pattern)
+ 
+    ax.bar_label(
+        container, fmt='%.0f%%', padding=-19, size='small',
+        bbox=dict(facecolor='white', edgecolor='none', pad=1)
+    )
+
+# Create legend entries that match each group's texture
+handles = [
+    Patch(facecolor='white', edgecolor='black',
+          hatch=pattern, label=group.title())
+    for group, pattern in zip(groups, patterns)
+]
+
+# Set the title and axis labels
+ax.set_title('Women Survived at Higher Rates Than Men')
+ax.set_xlabel('Passenger Class')
+ax.set_ylabel('Survival Rate (%)')
+ax.set_ylim(0, 110)
+ax.legend(handles=handles, title='Sex', loc='upper right')
 
 plt.show()
 ```
