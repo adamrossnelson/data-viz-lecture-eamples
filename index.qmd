@@ -98,7 +98,7 @@ for i, m in enumerate(medians):
             bbox=dict(boxstyle='round', fc='white', ec='none', alpha=0.8))
 
 # Set the title and axis labels
-ax.set_title('Gentoo Are Heavier Than Others')
+ax.set_title('Gentoo Heavier Than Others')
 ax.set_xlabel('Penguin Species')
 ax.set_ylabel('Body Mass (grams)')
 
@@ -171,8 +171,8 @@ for i, m in enumerate(mean_bill):
 ax.set_ylim(0, 65)
 
 # Set the title and axis labels
-ax.set_title('Weekend Bills Are Larger Than Weekday Bills')
-ax.set_xlabel('Day of the Week')
+ax.set_title('Weekend Bills Larger Than Weekday')
+ax.set_xlabel('')
 ax.set_ylabel('Total (Dollars)')
 
 plt.show()
@@ -197,7 +197,7 @@ When the audience only needs the headline number, a bar chart with height labels
 avg_mpg = mpg.groupby('origin')['mpg'].mean().sort_values(ascending=False)
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 3))
+fig, ax = plt.subplots(figsize=(5.5, 3))
 
 # Bar chart of average mpg by origin
 sns.barplot(x=avg_mpg.index.str.title(), y=avg_mpg.values,
@@ -210,8 +210,8 @@ for i, v in enumerate(avg_mpg):
             ha='center', size='x-large')
 
 # Set the title and axis labels
-ax.set_title('Japanese Cars Lead in Fuel Efficiency')
-ax.set_xlabel('Region of Vehicle Origin')
+ax.set_title('Japanese Cars Lead in Efficiency')
+ax.set_xlabel('')
 ax.set_ylabel('Average (MPG)')
 ax.set_ylim(0, 36)
 
@@ -237,7 +237,7 @@ survival = (titanic.groupby(['pclass', 'sex'])['survived']
             .mean().mul(100).reset_index())
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(5.5, 3.25))
 
 # Grouped bar chart of survival rate
 sns.barplot(data=survival, x='pclass', y='survived',
@@ -291,7 +291,7 @@ survival = (titanic.groupby(['pclass', 'sex'])['survived']
             .mean().mul(100).reset_index())
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(5.5, 3.25))
 
 # Grouped bar chart of survival rate
 sns.barplot(
@@ -318,11 +318,12 @@ handles = [
 ]
 
 # Set the title and axis labels
-ax.set_title('Women Survived at Higher Rates Than Men')
+ax.set_title('Women More Likely To Survive')
 ax.set_xlabel('Passenger Class')
 ax.set_ylabel('Survival Rate (%)')
 ax.set_ylim(0, 110)
-ax.legend(handles=handles, title='Sex', loc='upper right')
+ax.legend(handles=handles, loc='upper right')
+ax.get_legend().set_title(None)
 
 plt.show()
 ```
@@ -331,7 +332,7 @@ plt.show()
 
 A change over time story answers *what happened, and when?* Time goes on the horizontal axis and the eye follows the line. Line charts are the default. When the audience needs to see how the whole distribution shifted, one violin or box plot per period works well.
 
-Candidates: @fig-time-annual, @fig-time-multiline, @fig-time-annotated, @fig-time-ci, @fig-time-violin, @fig-time-seasonal.
+Candidates: @fig-time-annual, @fig-time-multiline, @fig-time-annotated, @fig-time-ci, @fig-time-violin, @fig-time-seasonal, @fig-time-bw-line.
 
 ```{python}
 #| label: time-data
@@ -356,7 +357,7 @@ One series, one story. Markers and data labels let the audience read exact value
 annual = flights.groupby('year')['passengers'].sum().reset_index()
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 3))
+fig, ax = plt.subplots(figsize=(5, 2.5))
 
 # Line chart of annual passengers
 sns.lineplot(data=annual, x='year', y='passengers',
@@ -369,8 +370,8 @@ for _, row in list(annual.iterrows())[1::3]:
             ha='center', size='x-small')
 
 # Set the title and axis labels
-ax.set_title('Air Travel Grew Rapidly From 1949 To 1960')
-ax.set_xlabel('Year')
+ax.set_title('Rapid Airline Growth 1949 To 1960')
+ax.set_xlabel('')
 ax.set_ylabel('Total Passengers')
 ax.set_xticks(annual['year'])
 ax.set_xticklabels(annual['year'], rotation=45)
@@ -402,7 +403,7 @@ countries = health['Country'].unique()
 palette = dict(zip(countries, sns.color_palette('tab10', len(countries))))
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(6, 3))
 
 # One line per country
 sns.lineplot(data=health, x='Year', y='Life_Expectancy',
@@ -419,7 +420,8 @@ for country, group in health.groupby('Country'):
 ax.set_xlim(1970, 2032)
 
 # Set the title and axis labels
-ax.set_title('Japan Pulled Ahead on Life Expectancy')
+ax.set_title('Japan Pulled Life Expectancy Ahead')
+ax.set_xlabel('')
 ax.set_ylabel('Life Expectancy (yrs)')
 
 plt.show()
@@ -444,7 +446,7 @@ recovery = dowjones[(dowjones['Date'] > low['Date']) &
                     (dowjones['Price'] >= peak['Price'])].iloc[0]
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(5, 3))
 
 # Line chart of the Dow Jones average
 sns.lineplot(data=dowjones, x='Date', y='Price', ax=ax)
@@ -465,6 +467,7 @@ ax.annotate('Recovered in {}'.format(recovery['Date'].year),
 
 # Set the title and axis labels
 ax.set_title('Dow Took 25 Yrs to \n Recover From 1929 Crash')
+ax.set_xlabel('')
 ax.set_ylabel('Dow Jones Average')
 
 plt.show()
@@ -479,7 +482,7 @@ When each time point is built from many measurements, Seaborn automatically aver
 #| fig-cap: "A line chart with shaded 95% confidence bands shows the average brain signal at each timepoint for two kinds of event."
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 3))
+fig, ax = plt.subplots(figsize=(5, 2.5))
 
 # Line chart with confidence band, one line per event type
 sns.lineplot(data=fmri, x='timepoint', y='signal',
@@ -513,13 +516,14 @@ When a line of averages would hide how the whole distribution moved, draw one vi
 yearly_median = mpg.groupby('model_year')['mpg'].median()
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(5.5, 2.75))
 
 # One violin per model year
 sns.violinplot(data=mpg, x='model_year', y='mpg', ax=ax)
 
 # Set the title and axis labels
 ax.set_title('Fuel Efficiency Jumped After 1979')
+ax.set_xlabel('')
 ax.set_ylabel('Fuel Efficiency (MPG)')
 ax.set_xticks(range(len(yearly_median)))
 ax.set_xticklabels(['19{}'.format(y) for y in yearly_median.index], rotation=45)
@@ -536,7 +540,7 @@ Drawing each year as its own line, with a sequential color scale, reveals a repe
 #| fig-cap: "One line per year, shaded from light to dark, shows monthly airline passengers and the repeating summer peak."
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(5.5, 3))
+fig, ax = plt.subplots(figsize=(4, 2))
 
 # One line per year, colored on a sequential palette
 sns.lineplot(data=flights, x='month', y='passengers',
@@ -548,6 +552,7 @@ ax.legend(bbox_to_anchor=(1.02, 1), loc=2, borderaxespad=0.,
 
 # Set the title and axis labels
 ax.set_title('Yearly Patterns Repeat')
+ax.set_xlabel('')
 ax.set_ylabel('Passengers')
 
 # Shrink the x-axis labels so the month names fit
@@ -556,11 +561,65 @@ ax.tick_params(axis='x', labelsize='x-small', rotation=45)
 plt.show()
 ```
 
+## Candidate 7: Black And White Line Chart
+
+This example distinguishes the lines by marker and line style instead of color. For folks who perceive color differently (or who do not perceive color) this chart may be regarded or considered to be more accessible. It will also work well when you know your destination publication medium will be black and white.
+
+```{python}
+#| label: fig-time-bw-line
+#| fig-cap: "A black and white line chart shows the number of Seattle cat and dog licenses issued in each calendar month. Cats are marked with circles and a dashed line, and dogs are marked with squares and a dotted line."
+
+# Additional import to support month abbreviations
+import calendar
+
+# Load the Seattle pet licenses data
+web = "https://raw.githubusercontent.com/"
+path = "/rfordatascience/tidytuesday/main/data/2019/2019-03-26/"
+fname = "seattle_pets.csv"
+pets = pd.read_csv(web + path + fname)
+
+# Keep observations where species is Cat or Dog
+pets = pets[pets['species'].isin(['Cat', 'Dog'])].copy()
+
+# Convert the license date and pull out the calendar month
+pets['month'] = pd.to_datetime(
+    pets['license_issue_date'], format='%B %d %Y').dt.month
+
+# Count the licenses issued in each month, one column per species
+license_counts = pets.groupby(['month', 'species']).size().unstack()
+
+# Replace the month numbers with month abbreviations
+license_counts.index = [calendar.month_abbr[m] for m in license_counts.index]
+
+# Create a figure and axis object
+fig, ax = plt.subplots(figsize=(5, 3))
+
+# Distinguish species by marker and line style instead of color
+styles = {'Cat': {'marker': 'o', 'linestyle': '--'},
+          'Dog': {'marker': 's', 'linestyle': ':'}}
+
+# Plot each species as a separate black line
+for species in license_counts.columns:
+    license_counts[species].plot(ax=ax, color='black', markersize=6,
+                                 linewidth=2, label=species,
+                                 **styles[species])
+
+# Set the title and axis labels
+ax.set_title('Pet Licenses Peak In December')
+ax.set_ylabel('Licenses Issued')
+ax.set_ylim(0, 4000)
+ax.legend(loc='upper left', fontsize='small')
+ax.set_xticks(range(12))
+ax.set_xticklabels(license_counts.index, rotation=45, ha='right')
+
+plt.show()
+```
+
 # The Correlation Stories
 
 A correlation story answers *do these two things move together?* Scatter plots show the raw relationship between two numeric variables. When there are too many points, hexbin plots show density instead. When both variables are categorical, cross-tabulate them and show the table as a heat map.
 
-Candidates: @fig-corr-reg, @fig-corr-simpson, @fig-corr-hexbin, @fig-corr-hexbin-b, @fig-corr-heat, @fig-corr-crosstab, @fig-corr-bubble.
+Candidates: @fig-corr-reg, @fig-corr-simpson, @fig-corr-simpson-alt, @fig-corr-hexbin, @fig-corr-hexbin-b, @fig-corr-heat, @fig-corr-crosstab, @fig-corr-bubble.
 
 ```{python}
 #| label: corr-data
@@ -629,6 +688,45 @@ ax.legend(loc='lower left', fontsize='xx-small')
 
 # Set the title and axis labels
 ax.set_title('Overall Trend Reverses Within Species')
+ax.set_xlabel('Bill Length (mm)')
+ax.set_ylabel('Bill Depth (mm)')
+
+plt.show()
+```
+
+## Candidate 2-alt: Scatter Plot With A Line For Each Species
+
+This version adds a separate line of best fit for each species, drawn in the same color as its points. Set against the dashed overall line, the lines make the reversal easy to see.
+
+```{python}
+#| label: fig-corr-simpson-alt
+#| fig-cap: "A scatter plot of penguin bill length and bill depth with a separate line of best fit for each species, drawn in the color of its points. The dashed black line is the overall trend, which slopes down, while every species line slopes up."
+
+# Assign one color to each species so points and lines match
+palette = dict(zip(penguins['species'].unique(), sns.color_palette()))
+
+# Create a figure and axis object
+fig, ax = plt.subplots(figsize=(6, 3))
+
+# One line of best fit per species, in the same color as its points
+for species, group in penguins.groupby('species'):
+    sns.regplot(data=group, x='bill_length_mm', y='bill_depth_mm',
+                scatter=False, ci=None, color=palette[species], ax=ax)
+
+# Scatter plot colored by species
+sns.scatterplot(data=penguins, x='bill_length_mm', y='bill_depth_mm',
+                hue='species', style='species', palette=palette, ax=ax)
+
+# Overall trend line that ignores species
+sns.regplot(data=penguins, x='bill_length_mm', y='bill_depth_mm',
+            scatter=False, ci=None, color='black',
+            line_kws={'linestyle': '--'}, ax=ax)
+
+# Move the legend into an empty corner
+ax.legend(loc='lower left', fontsize='xx-small')
+
+# Set the title and axis labels
+ax.set_title('Individual Species Trends Upward')
 ax.set_xlabel('Bill Length (mm)')
 ax.set_ylabel('Bill Depth (mm)')
 
@@ -1161,8 +1259,8 @@ for container in ax.containers:
 
 # Set the title and axis labels
 ax.set_title('First Class Survived Most Often')
-ax.set_xlabel('Passenger Class')
-ax.set_ylabel('Share of Passengers (%)')
+ax.set_xlabel('')
+ax.set_ylabel('Share of Passengers')
 ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.25),
           ncol=2, fontsize='x-small')
 
@@ -1197,7 +1295,7 @@ ax.invert_yaxis()
 
 # Set the title and axis labels
 ax.set_title('US Cars Use Bigger Engines')
-ax.set_xlabel('Share of Cars (%)')
+ax.set_xlabel('')
 ax.set_ylabel('')
 ax.legend(title='Cylinders', loc='upper center', bbox_to_anchor=(0.5, -0.25),
           ncol=5, fontsize='x-small', title_fontsize='x-small')
@@ -1246,7 +1344,7 @@ ax.invert_yaxis()
 
 # Set the title and axis labels
 ax.set_title('US Cars Use Bigger Engines')
-ax.set_xlabel('Share of Cars (%)')
+ax.set_xlabel('')
 ax.set_ylabel('')
 ax.legend(handles=handles, title='Cylinders', loc='upper center',
           bbox_to_anchor=(0.5, -0.25), ncol=5,
@@ -1254,6 +1352,8 @@ ax.legend(handles=handles, title='Cylinders', loc='upper center',
 
 plt.show()
 ```
+
+...
 
 ## Candidate 6: Waffle Chart
 
@@ -1570,7 +1670,7 @@ ax.invert_yaxis()
 
 # Set the title and axis labels
 ax.set_title('Japan Rose To #1 While The USA Fell To Last')
-ax.set_ylabel('Rank (1 = Highest)')
+ax.set_ylabel('')
 ax.set_xticks(years)
 ax.set_yticks(range(1, 7))
 ax.set_xlim(1968, 2032)
@@ -1689,7 +1789,7 @@ charge = 68
 color = 'seagreen' if charge > 50 else 'orange' if charge > 20 else 'firebrick'
 
 # Create a figure and axis object
-fig, ax = plt.subplots(figsize=(6, 3))
+fig, ax = plt.subplots(figsize=(5, 2))
 
 # Draw the battery body, the terminal, and the fill
 ax.add_patch(Rectangle((0, 0), 10, 5, fill=False, linewidth=4, edgecolor='black'))
