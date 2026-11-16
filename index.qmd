@@ -615,60 +615,6 @@ ax.set_xticklabels(license_counts.index, rotation=45, ha='right')
 plt.show()
 ```
 
-## Candidate 7: Black And White Line Chart
-
-This example distinguishes the lines by marker and line style instead of color. For folks who perceive color differently (or who do not perceive color) this chart may be regarded or considered to be more accessible. It will also work well when you know your destination publication medium will be black and white.
-
-```{python}
-#| label: fig-time-bw-line
-#| fig-cap: "A black and white line chart shows the number of Seattle cat and dog licenses issued in each calendar month. Cats are marked with circles and a dashed line, and dogs are marked with squares and a dotted line."
-
-# Additional import to support month abbreviations
-import calendar
-
-# Load the Seattle pet licenses data
-web = "https://raw.githubusercontent.com/"
-path = "/rfordatascience/tidytuesday/main/data/2019/2019-03-26/"
-fname = "seattle_pets.csv"
-pets = pd.read_csv(web + path + fname)
-
-# Keep observations where species is Cat or Dog
-pets = pets[pets['species'].isin(['Cat', 'Dog'])].copy()
-
-# Convert the license date and pull out the calendar month
-pets['month'] = pd.to_datetime(
-    pets['license_issue_date'], format='%B %d %Y').dt.month
-
-# Count the licenses issued in each month, one column per species
-license_counts = pets.groupby(['month', 'species']).size().unstack()
-
-# Replace the month numbers with month abbreviations
-license_counts.index = [calendar.month_abbr[m] for m in license_counts.index]
-
-# Create a figure and axis object
-fig, ax = plt.subplots(figsize=(5, 3))
-
-# Distinguish species by marker and line style instead of color
-styles = {'Cat': {'marker': 'o', 'linestyle': '--'},
-          'Dog': {'marker': 's', 'linestyle': ':'}}
-
-# Plot each species as a separate black line
-for species in license_counts.columns:
-    license_counts[species].plot(ax=ax, color='black', markersize=6,
-                                 linewidth=2, label=species,
-                                 **styles[species])
-
-# Set the title and axis labels
-ax.set_title('Pet Licenses Peak In December')
-ax.set_ylabel('Licenses Issued')
-ax.set_ylim(0, 4000)
-ax.legend(loc='upper left', fontsize='small')
-ax.set_xticks(range(12))
-ax.set_xticklabels(license_counts.index, rotation=45, ha='right')
-
-plt.show()
-```
-
 # The Correlation Stories
 
 A correlation story answers *do these two things move together?* Scatter plots show the raw relationship between two numeric variables. When there are too many points, hexbin plots show density instead. When both variables are categorical, cross-tabulate them and show the table as a heat map.
